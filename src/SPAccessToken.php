@@ -140,7 +140,8 @@ class SPAccessToken extends SPObject implements Serializable
         }
 
         try {
-            $jwt = JWT::decode($contextToken, $config['secret'], false);
+            JWT::$leeway = 60; // $leeway in seconds
+            $jwt = JWT::decode($contextToken, base64_decode($config['secret']), array('HS256'));
         } catch (Exception $e) {
             throw new SPException('Unable to decode the Context Token', 0, $e);
         }
