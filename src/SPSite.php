@@ -180,7 +180,7 @@ class SPSite implements SPRequesterInterface
         $settings = array_replace_recursive($settings, [
             'site' => [], // SharePoint Site configuration
             'http' => [   // Guzzle HTTP Client configuration
-                'base_url' => $url,
+                'base_uri' => $url,
             ],
         ]);
 
