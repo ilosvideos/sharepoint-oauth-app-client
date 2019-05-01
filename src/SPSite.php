@@ -93,7 +93,7 @@ class SPSite implements SPRequesterInterface
         $this->http = $http;
 
         // set Site Hostname and Path
-        $components = parse_url($this->http->getBaseUrl());
+        $components = parse_url($this->http->getConfig('base_uri'));
 
         if (! isset($components['scheme'], $components['host'], $components['path'])) {
             throw new SPException('The SharePoint Site URL is invalid');
