@@ -193,14 +193,14 @@ class SPSite implements SPRequesterInterface
      * Parse the SharePoint API response
      *
      * @access  protected
-     * @param   \GuzzleHttp\Message\ResponseInterface $response
+     * @param   \GuzzleHttp\Psr7\Response $response
      * @throws  SPException
      * @return  array
      */
-    protected function parseResponse(ResponseInterface $response)
+    protected function parseResponse(\GuzzleHttp\Psr7\Response $response)
     {
         $httpStatus = $response->getStatusCode();
-        $json = json_decode($response->getBody(), true);
+        $json = json_decode($response->getBody()->getContents(), true);
 
         if ($httpStatus >= 400) {
             $message = null;
@@ -240,10 +240,10 @@ class SPSite implements SPRequesterInterface
     {
         try {
             $options = array_replace_recursive($options, [
-                'exceptions' => false, // avoid throwing exceptions when we get HTTP errors (4XX, 5XX)
+                'http_errors' => false, // avoid throwing exceptions when we get HTTP errors (4XX, 5XX) (key was "exceptions" in guzzle 5)
             ]);
 
-            $response = $this->http->send($this->http->createRequest($method, $url, $options));
+            $response = $this->http->request($method, $url, $options);
 
             return $json ? $this->parseResponse($response) : $response;
         } catch (TransferException $e) {
