@@ -17,7 +17,7 @@ use Exception;
 use Serializable;
 
 use Carbon\Carbon;
-use JWT;
+use \Firebase\JWT\JWT;
 
 class SPAccessToken extends SPObject implements Serializable
 {
