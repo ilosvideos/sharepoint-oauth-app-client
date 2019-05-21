@@ -17,7 +17,7 @@ use Exception;
 use Serializable;
 
 use Carbon\Carbon;
-use JWT;
+use \Firebase\JWT\JWT;
 
 class SPAccessToken extends SPObject implements Serializable
 {
@@ -140,7 +140,8 @@ class SPAccessToken extends SPObject implements Serializable
         }
 
         try {
-            $jwt = JWT::decode($contextToken, $config['secret'], false);
+            JWT::$leeway = 60; // $leeway in seconds
+            $jwt = JWT::decode($contextToken, base64_decode($config['secret']), array('HS256'));
         } catch (Exception $e) {
             throw new SPException('Unable to decode the Context Token', 0, $e);
         }
@@ -168,8 +169,23 @@ class SPAccessToken extends SPObject implements Serializable
                 'resource'      => $resource,
             ])
         ], 'POST');
-
+        var_dump($json);
+        echo($json['access_token']);
         return new static($json, $extra);
+    }
+
+    public function getCurrentUser(SPSite $site)
+    {
+        $hostname = parse_url($site->getUrl(), PHP_URL_HOST);
+        $response = $site->request('https://' . $hostname . '/_api/web/currentuser', [
+            'headers' => [
+                'Authorization' => 'Bearer ' . $this->token,
+            ]], 'GET', false);
+        $responseBody = $response->getBody()->getContents();
+        $currentUser = new \SimpleXMLElement($responseBody);
+        $email = $currentUser->content->children('m', true)->properties->children('d', true)->Email;
+        $name = $currentUser->content->children('m', true)->properties->children('d', true)->Title;
+        return ['email' => $email, 'name' => $name];
     }
 
     /**
